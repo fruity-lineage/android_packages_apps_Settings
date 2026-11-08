@@ -245,7 +245,7 @@
     <string name="ts_rkp_network_error">Could not reach the provisioning server. Check your connection.</string>
     <string name="ts_rkp_owner_only">Manage device RKP from the device owner’s profile</string>
     <string name="ts_rkp_provision">Generate keybox</string>
-    <string name="ts_rkp_provision_summary">Request a replacement now, or retry paused automatic provisioning. Requires compatible Qualcomm firmware.</string>
+    <string name="ts_rkp_provision_summary">Request a replacement now, or retry paused automatic provisioning.</string>
     <string name="ts_rkp_ready">Generated keybox active. Expires %1$s. Automatic renewal scheduled for %2$s.</string>
     <string name="ts_rkp_save_failed">Could not save the generated keybox</string>
     <string name="ts_rkp_signing">Requesting certificates from Google…</string>
