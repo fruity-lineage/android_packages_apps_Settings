@@ -147,6 +147,12 @@
             android:fragment="com.android.settings.users.UserSettings"
             settings:controller="com.android.settings.users.MultiUserPreferenceController"/>
 
+        <Preference
+            android:key="spoofing_settings"
+            android:title="@string/spoofing_title"
+            android:icon="@drawable/ic_settings_about_device_filled"
+            android:fragment="com.android.settings.spoof.Spoofing" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

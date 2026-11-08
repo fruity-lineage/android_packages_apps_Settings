@@ -229,6 +229,14 @@ public class SettingsGateway {
      * security exception if the fragment it needs to display is not in this list.
      */
     public static final String[] ENTRY_FRAGMENTS = {
+            "com.android.settings.spoof.Spoofing",
+            "com.android.settings.spoof.PlayIntegrityFix",
+            "com.android.settings.spoof.TrickyStore",
+            "com.android.settings.spoof.TrickyStoreAppSettings",
+            "com.android.settings.spoof.PixelPropsSettings",
+            "com.android.settings.spoof.TensorTargetsSettings",
+            "com.android.settings.spoof.UserSelectedAppSpoofSettings",
+            "com.android.settings.spoof.SettingsValueSpoofSettings",
             AdvancedConnectedDeviceDashboardFragment.class.getName(),
             CreateShortcut.class.getName(),
             BluetoothPairingDetail.class.getName(),
