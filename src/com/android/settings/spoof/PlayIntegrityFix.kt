@@ -6,8 +6,6 @@
 package com.android.settings.spoof
 
 import android.app.Activity
-import android.app.ActivityManager
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
@@ -91,7 +89,7 @@ class PlayIntegrityFix : SettingsPreferenceFragment() {
                                 updatePatchDateIfSimple(ctx.contentResolver, patch)
                             }
                         } catch (_: Exception) {}
-                        killGmsWithConfirmation {
+                        promptWipePlayStore {
                             toast(getString(R.string.pif_imported_as, PIF_CONFIG_NAME))
                             refreshStatus()
                         }
@@ -259,9 +257,7 @@ class PlayIntegrityFix : SettingsPreferenceFragment() {
                     toSave.toString(2)
                 )
                 updatePatchDateIfSimple(requireContext().contentResolver, matched.securityPatch)
-                // Background auto-fetch shouldn't interrupt with a dialog — stop GMS
-                // only, skip the Play Store data wipe prompt.
-                stopGmsPackages()
+                // The framework config observer stages properties and restarts GMS.
                 refreshStatus()
             } catch (_: Exception) {}
         }
@@ -293,7 +289,6 @@ class PlayIntegrityFix : SettingsPreferenceFragment() {
                 .forEach { json.remove(it) }
             Settings.Secure.putString(
                 requireContext().contentResolver, PIF_CONFIG_KEY, json.toString(2))
-            stopGmsPackages()
             refreshStatus()
         } catch (e: Exception) {
             toast(getString(R.string.pif_failed, e.message ?: ""))
@@ -405,7 +400,7 @@ class PlayIntegrityFix : SettingsPreferenceFragment() {
                     )
                     updatePatchDateIfSimple(requireContext().contentResolver, profile.securityPatch)
                 }
-                killGmsWithConfirmation {
+                promptWipePlayStore {
                     toast(getString(R.string.pif_fetched_model, profile.model))
                     refreshStatus()
                 }
@@ -440,26 +435,10 @@ class PlayIntegrityFix : SettingsPreferenceFragment() {
                 PIF_CONFIG_KEY,
                 json.toString(2)
             )
-            stopGmsPackages()
             refreshStatus()
         } catch (e: Exception) {
             toast(getString(R.string.pif_failed, e.message ?: ""))
         }
-    }
-
-    private fun stopGmsPackages() {
-        try {
-            val am = requireContext().getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-            am.forceStopPackage(VENDING_PACKAGE)
-            am.forceStopPackage(DROIDGUARD_PACKAGE)
-            am.forceStopPackage(GMS_PACKAGE)
-            am.forceStopPackage(GMS_PERSISTENT_PACKAGE)
-            am.forceStopPackage(RKPD_PACKAGE)
-            am.forceStopPackage(GSF_PACKAGE)
-            am.forceStopPackage(CONTACT_KEYS_PACKAGE)
-            am.forceStopPackage(SAFETY_CORE_PACKAGE)
-            am.forceStopPackage(VELVET_PACKAGE)
-        } catch (_: Exception) {}
     }
 
     private fun wipeVendingData() {
@@ -470,13 +449,10 @@ class PlayIntegrityFix : SettingsPreferenceFragment() {
     }
 
     /**
-     * Force-stops the GMS/Vending package family immediately (no data loss, safe
-     * to run without confirmation), then prompts before wiping Play Store app data,
-     * since that's destructive (signed-in state, download queue, etc.) and the
-     * fingerprint/config change itself doesn't strictly require it.
+     * The framework observer restarts GMS after applying the config. Ask separately
+     * before clearing Play Store data, which removes its signed-in state and queue.
      */
-    private fun killGmsWithConfirmation(onDone: () -> Unit) {
-        stopGmsPackages()
+    private fun promptWipePlayStore(onDone: () -> Unit) {
         pendingWipeDone = onDone
         ui.dialog = PifDialog.WipePlayStore
     }
@@ -492,14 +468,6 @@ class PlayIntegrityFix : SettingsPreferenceFragment() {
         internal const val PIF_CONFIG_KEY = "spoof_pif_config"
         private const val PIF_CONFIG_NAME = "pif.json"
         private const val VENDING_PACKAGE           = "com.android.vending"
-        private const val DROIDGUARD_PACKAGE        = "com.google.android.gms.unstable"
-        private const val GMS_PACKAGE               = "com.google.android.gms"
-        private const val GMS_PERSISTENT_PACKAGE    = "com.google.android.gms.persistent"
-        private const val RKPD_PACKAGE              = "com.google.android.rkpdapp"
-        private const val GSF_PACKAGE               = "com.google.android.gsf"
-        private const val CONTACT_KEYS_PACKAGE      = "com.google.android.contactkeys"
-        private const val SAFETY_CORE_PACKAGE       = "com.google.android.safetycore"
-        private const val VELVET_PACKAGE            = "com.google.android.googlequicksearchbox"
         private const val REFETCH_WINDOW_DAYS = 15L
         private const val PIF_ENABLED_KEY = "spoof_pif_enabled"
         internal const val LAST_AUTO_FETCH_KEY = "spoof_pif_last_auto_fetch"
